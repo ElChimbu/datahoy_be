@@ -1,0 +1,88 @@
+### Prompt para el Frontend Editor
+
+1. **Configurar la conexión al backend:**
+   - Asegúrate de que el frontend editor esté configurado para enviar solicitudes al backend en el puerto 3003.
+   - Usa la siguiente URL base para las solicitudes:
+     ```javascript
+     const API_BASE_URL = 'http://localhost:3003/api';
+     ```
+
+2. **Endpoints disponibles:**
+   - **POST `/api/pages`:** Crear una nueva página.
+     ```javascript
+     const createPage = async (pageData) => {
+       const response = await fetch(`${API_BASE_URL}/pages`, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(pageData),
+       });
+       return response.json();
+     };
+     ```
+
+   - **GET `/api/pages`:** Obtener todas las páginas.
+     ```javascript
+     const getAllPages = async () => {
+       const response = await fetch(`${API_BASE_URL}/pages`);
+       return response.json();
+     };
+     ```
+
+   - **GET `/api/pages/:slug`:** Obtener una página por su slug.
+     ```javascript
+     const getPageBySlug = async (slug) => {
+       const response = await fetch(`${API_BASE_URL}/pages/${slug}`);
+       return response.json();
+     };
+     ```
+
+   - **PUT `/api/pages/:id`:** Actualizar una página existente.
+     ```javascript
+     const updatePage = async (id, pageData) => {
+       const response = await fetch(`${API_BASE_URL}/pages/${id}`, {
+         method: 'PUT',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(pageData),
+       });
+       return response.json();
+     };
+     ```
+
+   - **DELETE `/api/pages/:id`:** Eliminar una página.
+     ```javascript
+     const deletePage = async (id) => {
+       const response = await fetch(`${API_BASE_URL}/pages/${id}`, {
+         method: 'DELETE',
+       });
+       return response.json();
+     };
+     ```
+
+3. **Ejemplo de datos para crear una página:**
+   ```javascript
+   const newPage = {
+     slug: 'test3',
+     title: 'Test Page',
+     metadata: {
+       description: 'This is a test page',
+       keywords: ['test', 'example'],
+       ogImage: 'https://example.com/image.jpg',
+     },
+     components: [],
+   };
+
+   createPage(newPage).then((data) => console.log(data));
+   ```
+
+4. **Validación de datos:**
+   - Asegúrate de que los datos enviados al backend cumplan con los requisitos de la base de datos:
+     - `slug`: Único y no nulo.
+     - `title`: No nulo.
+     - `metadata` y `components`: Formato JSON válido.
+
+5. **Configuración adicional:**
+   - Si el backend está en un entorno remoto, actualiza `API_BASE_URL` con la URL del servidor.

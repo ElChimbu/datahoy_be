@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreatePageRequest, ComponentDefinition, ComponentType } from '../types/page.types';
+import { ComponentType } from '../types/page.types';
 
 /**
  * Valid component types
@@ -137,56 +137,65 @@ export function validatePageData(req: Request, res: Response, next: NextFunction
   }
 
   // Validate components
-  if (!components) {
-    return res.status(400).json({
-      success: false,
-      error: 'Validation failed: components is required',
-    });
-  }
-
-  if (!Array.isArray(components)) {
+  if (components && !Array.isArray(components)) {
     return res.status(400).json({
       success: false,
       error: 'Validation failed: components must be an array',
     });
   }
 
-  if (components.length === 0) {
-    return res.status(400).json({
-      success: false,
-      error: 'Validation failed: components array cannot be empty',
-    });
-  }
-
-  // Validate each component
-  for (const component of components) {
-    const error = validateComponent(component);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        error: `Validation failed: ${error}`,
-      });
+  if (components && components.length > 0) {
+    // Validate each component
+    for (const component of components) {
+      const error = validateComponent(component);
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          error: `Validation failed: ${error}`,
+        });
+      }
     }
   }
 
   next();
+  return;
 }
 
 /**
  * Validate UUID format
  */
-export function validateUUID(req: Request, res: Response, next: NextFunction) {
+export async function validateUUID(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
 
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  
-  if (!uuidRegex.test(id)) {
+  console.log('Validating UUID with id:', id);
+
+  if (!id) {
     return res.status(400).json({
       success: false,
-      error: 'Invalid UUID format',
+      error: 'Validation failed: id is required',
+    });
+  }
+
+  try {
+    const { validate } = await import('uuid');
+    const isValid = validate(id);
+    console.log('UUID validation result:', isValid);
+
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed: Invalid UUID format',
+      });
+    }
+  } catch (error) {
+    console.error('Error during UUID validation:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Validation failed: Unable to validate UUID',
     });
   }
 
   next();
+  return;
 }
 

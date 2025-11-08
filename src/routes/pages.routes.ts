@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { PagesController } from '../controllers/pages.controller';
-import { validatePageData, validateUUID } from '../middleware/validation';
+import { PagesController } from '../controllers/pages.controller.js';
+import { validatePageData, validateUUID } from '../middleware/validation.js';
 
 const router = Router();
 

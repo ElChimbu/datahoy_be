@@ -1,6 +1,6 @@
-import { PageModel } from '../models/Page.model';
+import { PageModel } from '../models/Page.model.js';
 import { Page, CreatePageRequest, UpdatePageRequest } from '../types/page.types';
-import { ApiError } from '../middleware/errorHandler';
+import { ApiError } from '../middleware/errorHandler.js';
 
 /**
  * Pages Service - Business logic for pages
@@ -43,6 +43,7 @@ export class PagesService {
    * Create a new page
    */
   static async createPage(pageData: CreatePageRequest): Promise<Page> {
+    
     // Check if slug already exists
     const slugExists = await PageModel.slugExists(pageData.slug);
     

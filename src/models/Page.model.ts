@@ -1,4 +1,4 @@
-import db from '../db/connection';
+import db from '../db/connection.js';
 import { Page, PageDB, CreatePageRequest, UpdatePageRequest } from '../types/page.types';
 
 /**
@@ -35,14 +35,14 @@ export class PageModel {
    */
   static async findBySlug(slug: string): Promise<Page | null> {
     const result = await db.query(
-      'SELECT * FROM pages WHERE slug = $1',
+      'SELECT * FROM pages WHERE id = $1',
       [slug]
     );
-    
+
     if (result.rows.length === 0) {
       return null;
     }
-    
+
     return dbRowToPage(result.rows[0]);
   }
 
@@ -54,11 +54,11 @@ export class PageModel {
       'SELECT * FROM pages WHERE id = $1',
       [id]
     );
-    
+
     if (result.rows.length === 0) {
       return null;
     }
-    
+
     return dbRowToPage(result.rows[0]);
   }
 
@@ -68,12 +68,12 @@ export class PageModel {
   static async slugExists(slug: string, excludeId?: string): Promise<boolean> {
     let query = 'SELECT COUNT(*) FROM pages WHERE slug = $1';
     const params: any[] = [slug];
-    
+
     if (excludeId) {
       query += ' AND id != $2';
       params.push(excludeId);
     }
-    
+
     const result = await db.query(query, params);
     return parseInt(result.rows[0].count) > 0;
   }
@@ -93,7 +93,7 @@ export class PageModel {
         JSON.stringify(pageData.components), // pg accepts JSON strings for JSONB
       ]
     );
-    
+
     return dbRowToPage(result.rows[0]);
   }
 
@@ -101,6 +101,9 @@ export class PageModel {
    * Update an existing page
    */
   static async update(id: string, pageData: UpdatePageRequest): Promise<Page | null> {
+    console.log('Executing update with id:', id);
+    console.log('Page data:', pageData);
+
     const result = await db.query(
       `UPDATE pages 
        SET slug = $1, title = $2, metadata = $3::jsonb, components = $4::jsonb
@@ -114,11 +117,13 @@ export class PageModel {
         id,
       ]
     );
-    
+
+    console.log('Query result:', result.rows);
+
     if (result.rows.length === 0) {
       return null;
     }
-    
+
     return dbRowToPage(result.rows[0]);
   }
 
@@ -130,7 +135,7 @@ export class PageModel {
       'DELETE FROM pages WHERE id = $1 RETURNING id',
       [id]
     );
-    
+
     return result.rows.length > 0;
   }
 }

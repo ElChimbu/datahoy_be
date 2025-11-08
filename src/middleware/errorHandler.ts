@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 
 /**
  * Custom error class for API errors
@@ -22,8 +22,7 @@ export class ApiError extends Error {
 export function errorHandler(
   err: Error | ApiError,
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) {
   // Log error
   console.error('Error:', {
@@ -41,52 +40,10 @@ export function errorHandler(
     });
   }
 
-  // Handle PostgreSQL errors
-  if (err.name === 'PostgresError' || (err as any).code) {
-    const pgError = err as any;
-    
-    // Unique constraint violation
-    if (pgError.code === '23505') {
-      return res.status(409).json({
-        success: false,
-        error: 'A page with this slug already exists',
-      });
-    }
-
-    // Foreign key constraint violation
-    if (pgError.code === '23503') {
-      return res.status(400).json({
-        success: false,
-        error: 'Referenced resource does not exist',
-      });
-    }
-
-    // Invalid UUID
-    if (pgError.code === '22P02') {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid UUID format',
-      });
-    }
-  }
-
-  // Handle validation errors
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      success: false,
-      error: err.message,
-    });
-  }
-
-  // Default error response
-  const statusCode = (err as any).statusCode || 500;
-  const message = process.env.NODE_ENV === 'production' 
-    ? 'Internal server error' 
-    : err.message;
-
-  res.status(statusCode).json({
+  // Handle unknown errors
+  return res.status(500).json({
     success: false,
-    error: message,
+    error: 'Internal server error',
   });
 }
 
