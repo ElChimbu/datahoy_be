@@ -23,6 +23,9 @@ router.get('/id/:id', validateUUID, PagesController.getPageById);
 // in app.ts using app.get('/api/pages/*', ...)
 router.get('/', PagesController.getAllPages);
 
+// GET /api/pages/:slug - Get page by slug
+router.get('/:slug', PagesController.getPageBySlug);
+
 // POST /api/pages - Create a new page
 router.post('/', validatePageData, PagesController.createPage);
 

@@ -1,0 +1,41 @@
+**Asunto:** Solicitudes con slugs no válidos al backend
+
+**Descripción del problema:**
+El backend está recibiendo solicitudes con slugs no válidos en la ruta `GET /api/pages/*`. Algunos ejemplos de slugs problemáticos incluyen:
+- "hola"
+- ".well-known"
+
+Estas solicitudes están siendo rechazadas porque el backend espera que los slugs sean UUIDs válidos. Esto genera errores en los logs y respuestas HTTP 400.
+
+**Impacto:**
+- Las solicitudes no válidas están generando ruido en los logs del backend.
+- El cliente no recibe una respuesta útil para estas solicitudes.
+
+**Recomendaciones para el frontend:**
+1. **Validar los slugs antes de realizar la solicitud:**
+   - Asegúrate de que los slugs enviados al backend sean UUIDs válidos.
+   - Puedes usar una biblioteca como `uuid` para validar los slugs antes de enviarlos.
+
+   **Ejemplo de validación:**
+   ```javascript
+   import { validate as validateUUID } from 'uuid';
+
+   const slug = 'valor-a-validar';
+   if (!validateUUID(slug)) {
+     console.error('Slug no válido:', slug);
+     // Evitar enviar la solicitud al backend
+   }
+   ```
+
+2. **Evitar solicitudes a rutas no válidas:**
+   - Verifica que el frontend no genere rutas como `/.well-known` o cualquier otra que no sea esperada por el backend.
+
+3. **Registrar valores inesperados:**
+   - Agrega logs en el frontend para capturar los slugs que se están generando y enviando al backend.
+
+**Próximos pasos:**
+- Revisa el código del frontend para identificar por qué se están generando estas rutas no válidas.
+- Implementa validaciones para evitar que se envíen slugs no válidos.
+- Realiza pruebas para asegurarte de que solo se envían solicitudes válidas al backend.
+
+Si necesitas más detalles o ayuda para implementar estas validaciones, no dudes en preguntar.

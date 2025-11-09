@@ -34,8 +34,10 @@ export class PageModel {
    * Find page by slug (supports nested slugs)
    */
   static async findBySlug(slug: string): Promise<Page | null> {
+    console.log('Executing findBySlug with slug:', slug);
+
     const result = await db.query(
-      'SELECT * FROM pages WHERE id = $1',
+      'SELECT * FROM pages WHERE slug = $1',
       [slug]
     );
 

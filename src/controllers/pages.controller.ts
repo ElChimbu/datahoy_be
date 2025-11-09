@@ -30,46 +30,28 @@ export class PagesController {
   }
 
   /**
-   * GET /api/pages/:slug or /api/pages/*
-   * Get page by slug (supports nested slugs)
-   * 
-   * IMPORTANT: This handles nested slugs like "noticias/tecnologia"
-   * The slug is extracted by the extractSlug middleware from req.path
+   * GET /api/pages/:slug
+   * Get page by slug
    */
   static async getPageBySlug(req: Request, res: Response) {
     try {
-      console.log('Executing getPageBySlug with params:', req.params);
+      const { slug } = req.params;
 
-      const slug = (req.params as any).slug || req.params.slug;
-
-      if (!slug || slug === '') {
-        return res.status(400).json({
-          success: false,
-          error: 'Slug is required',
-        });
+      if (!slug || typeof slug !== 'string') {
+        return res.status(400).json({ error: 'Invalid slug format' });
       }
 
+      // Buscar el contenido en la base de datos utilizando el slug
       const page = await PagesService.getPageBySlug(slug);
 
       if (!page) {
-        return res.status(404).json({
-          success: false,
-          error: 'Page not found',
-        });
+        return res.status(404).json({ error: 'Page not found' });
       }
 
-      const response: ApiResponse<Page> = {
-        success: true,
-        data: page,
-      };
-      
-      return res.status(200).json(response);
+      return res.json({ success: true, data: page });
     } catch (error) {
-      console.error('Error in getPageBySlug:', error);
-      return res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-      });
+      console.error('Error fetching page by slug:', error);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 

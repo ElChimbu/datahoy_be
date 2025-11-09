@@ -63,6 +63,15 @@ app.get('/api/pages/*', async (req: Request, _res: Response, next) => {
   next();
 });
 
+// Added explicit handling for /.well-known to avoid invalid slug errors
+app.get('/.well-known/*', (req, res) => {
+  console.warn('Blocked request to /.well-known:', req.path);
+  return res.status(404).json({
+    success: false,
+    error: 'Not found',
+  });
+});
+
 // Mount the pages router (handles /api/pages, /api/pages/id/:id, POST, PUT, DELETE)
 app.use('/api/pages', pagesRoutes);
 
